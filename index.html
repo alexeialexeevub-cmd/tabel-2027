@@ -15,7 +15,6 @@
   .month-btn:hover { background: #e1e8ed; }
   .month-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); }
   
-  /* Единый контейнер со скроллом */
   .table-container { 
     max-width: 100%; 
     overflow-x: auto; 
@@ -23,7 +22,6 @@
     border-radius: 8px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
     position: relative; 
-    /* Добавляем плавность */
     scroll-behavior: smooth;
   }
   
@@ -32,16 +30,17 @@
     border-spacing: 0; 
     width: max-content; 
     min-width: 100%; 
+    table-layout: fixed; /* Важно: заставляет соблюдать ширину */
   }
   
   th, td { 
-    padding: 8px 10px; 
+    padding: 10px 8px; 
     border-bottom: 1px solid var(--border); 
     border-right: 1px solid var(--border); 
     text-align: center; 
     font-size: 0.9rem; 
     white-space: nowrap; 
-    height: 40px; /* Фиксируем высоту, чтобы строки не скакали */
+    height: 40px; 
     box-sizing: border-box;
   }
   
@@ -54,15 +53,18 @@
     z-index: 10; 
   }
   
-  /* ЖЕСТКОЕ ЗАКРЕПЛЕНИЕ ПЕРВЫХ 5 КОЛОНОК */
-  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; width: 40px; min-width: 40px; }
-  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; width: 180px; min-width: 180px; }
-  th:nth-child(3), td:nth-child(3) { position: sticky; left: 220px; z-index: 11; background: #fff; text-align: left; width: 150px; min-width: 150px; }
-  th:nth-child(4), td:nth-child(4) { position: sticky; left: 370px; z-index: 11; background: #fff; width: 70px; min-width: 70px; }
-  th:nth-child(5), td:nth-child(5) { position: sticky; left: 440px; z-index: 11; background: #fff; width: 70px; min-width: 70px; border-right: 2px solid var(--primary); }
+  /* Фиксация первых 5 колонок */
+  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; width: 40px; min-width: 40px; max-width: 40px; }
+  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; width: 200px; min-width: 200px; max-width: 200px; }
+  th:nth-child(3), td:nth-child(3) { position: sticky; left: 240px; z-index: 11; background: #fff; text-align: left; width: 160px; min-width: 160px; max-width: 160px; }
+  th:nth-child(4), td:nth-child(4) { position: sticky; left: 400px; z-index: 11; background: #fff; width: 75px; min-width: 75px; max-width: 75px; }
+  th:nth-child(5), td:nth-child(5) { position: sticky; left: 475px; z-index: 11; background: #fff; width: 75px; min-width: 75px; max-width: 75px; border-right: 2px solid var(--primary); }
   
-  /* Закрашиваем шапку закрепленных колонок */
+  /* Шапка закрепленных колонок */
   th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) { z-index: 12; background: #eaf0f6; }
+  
+  /* Ширина для колонок с днями */
+  th:nth-child(n+6), td:nth-child(n+6) { width: 45px; min-width: 45px; max-width: 45px; }
   
   tr:hover td { background: #f1f8ff; }
   tr:hover td:nth-child(-n+5) { background: #e1f0fa; }
@@ -109,7 +111,6 @@ function renderTable() {
   
   thead.innerHTML = ""; tbody.innerHTML = "";
 
-  // Формируем шапку
   let trHead = document.createElement("tr");
   ["№", "ФИО", "Должность", "Часы план", "Часы факт"].forEach(text => {
     let th = document.createElement("th"); th.textContent = text; trHead.appendChild(th);
@@ -119,16 +120,13 @@ function renderTable() {
   }
   thead.appendChild(trHead);
 
-  // Заполняем данными
   parsedData.forEach(row => {
     let tr = document.createElement("tr");
-    // Первые 5 колонок
     for (let i = 0; i < 5; i++) {
       let td = document.createElement("td"); 
       td.textContent = row[i] || ""; 
       tr.appendChild(td);
     }
-    // Дни месяца
     for (let i = 0; i < month.days; i++) {
       let td = document.createElement("td");
       let val = row[month.start + i] || "";
@@ -154,8 +152,6 @@ function createNav() {
       document.querySelectorAll(".month-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderTable();
-      
-      // Сбрасываем скролл в начало при смене месяца
       document.getElementById("tableContainer").scrollLeft = 0;
     };
     nav.appendChild(btn);
