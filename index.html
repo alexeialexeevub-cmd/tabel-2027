@@ -115,7 +115,135 @@ function createNav() {
 }
 
 // Загрузка данных из компактного формата
-const rawDataString = "1|Алексеев Алексей Викторович|Главный инженер|159|159|В,8,7,В,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,В,В,В,В,4,4,В,В,4,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8\n" + 
+const r<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Табель ИТС 2027</title>
+<style>
+  :root { --primary: #2980b9; --bg: #f4f6f8; --border: #dcdde1; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2f3640; }
+  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 5px; }
+  .subtitle { text-align: center; color: #718093; margin-bottom: 20px; font-size: 0.95rem; }
+  .months-nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; max-width: 1200px; margin: 0 auto 20px; }
+  .month-btn { background: #fff; border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #718093; transition: all 0.2s; font-size: 0.9rem; }
+  .month-btn:hover { background: #e1e8ed; }
+  .month-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); }
+  .table-container { max-width: 100%; overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+  table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 0.9rem; white-space: nowrap; }
+  th { background: #f8f9fa; font-weight: 600; color: #2f3640; position: sticky; top: 0; z-index: 10; }
+  
+  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; min-width: 40px; }
+  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; min-width: 200px; }
+  th:nth-child(3), td:nth-child(3) { position: sticky; left: 240px; z-index: 11; background: #fff; text-align: left; min-width: 160px; }
+  th:nth-child(4), td:nth-child(4) { position: sticky; left: 400px; z-index: 11; background: #fff; min-width: 60px; }
+  th:nth-child(5), td:nth-child(5) { position: sticky; left: 460px; z-index: 11; background: #fff; min-width: 60px; border-right: 2px solid var(--primary); }
+  th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) { z-index: 12; background: #eaf0f6; }
+  tr:hover td { background: #f1f8ff; }
+  tr:hover td:nth-child(-n+5) { background: #e1f0fa; }
+  
+  .val-V { color: #c0392b; font-weight: bold; background: #fadbd8; }
+  .val-OT { color: #8e44ad; font-weight: bold; background: #f4ecf7; }
+  .val-BL { color: #d35400; font-weight: bold; background: #fdebd0; }
+  .val-empty { color: #bdc3c7; }
+  .footer { text-align: center; margin-top: 20px; color: #718093; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+  <h1>📋 Табель ИТС — 2027</h1>
+  <div class="subtitle">ООО "Уральские Бани"</div>
+  <div class="months-nav" id="monthsNav"></div>
+  <div class="table-container">
+    <table id="scheduleTable">
+      <thead><tr id="tableHead"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="footer">Данные обновлены автоматически из Excel</div>
+
+<script>
+// Настройки структуры месяцев
+const monthsConfig = [
+  { name: "Ноябрь", start: 5, days: 30 }, { name: "Декабрь", start: 35, days: 31 },
+  { name: "Январь", start: 66, days: 31 }, { name: "Февраль", start: 97, days: 28 },
+  { name: "Март", start: 125, days: 31 }, { name: "Апрель", start: 156, days: 30 },
+  { name: "Май", start: 186, days: 31 }, { name: "Июнь", start: 217, days: 30 },
+  { name: "Июль", start: 247, days: 31 }, { name: "Август", start: 278, days: 31 },
+  { name: "Сентябрь", start: 309, days: 30 }, { name: "Октябрь", start: 339, days: 31 },
+  { name: "Ноябрь", start: 370, days: 30 }, { name: "Декабрь", start: 400, days: 31 }
+];
+
+let currentMonthIndex = 0;
+let parsedData = [];
+
+// Функция отрисовки
+function renderTable() {
+  const month = monthsConfig[currentMonthIndex];
+  const thead = document.getElementById("tableHead");
+  const tbody = document.getElementById("tableBody");
+  thead.innerHTML = ""; tbody.innerHTML = "";
+
+  let trHead = document.createElement("tr");
+  ["№", "ФИО", "Должность", "Часы план", "Часы факт"].forEach(text => {
+    let th = document.createElement("th"); th.textContent = text; trHead.appendChild(th);
+  });
+  for (let i = 1; i <= month.days; i++) {
+    let th = document.createElement("th"); th.textContent = i; trHead.appendChild(th);
+  }
+  thead.appendChild(trHead);
+
+  parsedData.forEach(row => {
+    let tr = document.createElement("tr");
+    for (let i = 0; i < 5; i++) {
+      let td = document.createElement("td"); td.textContent = row[i]; tr.appendChild(td);
+    }
+    for (let i = 0; i < month.days; i++) {
+      let td = document.createElement("td");
+      let val = row[month.start + i] || "";
+      if (val === "В") { td.className = "val-V"; td.textContent = "В"; }
+      else if (val === "от" || val === "ОТ") { td.className = "val-OT"; td.textContent = val; }
+      else if (val === "б/л") { td.className = "val-BL"; td.textContent = "б/л"; }
+      else if (val === "") { td.className = "val-empty"; td.textContent = "—"; }
+      else { td.textContent = val; }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// Навигация
+function createNav() {
+  const nav = document.getElementById("monthsNav");
+  monthsConfig.forEach((m, idx) => {
+    let btn = document.createElement("button");
+    btn.className = "month-btn" + (idx === currentMonthIndex ? " active" : "");
+    btn.textContent = m.name;
+    btn.onclick = () => {
+      currentMonthIndex = idx;
+      document.querySelectorAll(".month-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTable();
+    };
+    nav.appendChild(btn);
+  });
+}
+
+// Инициализация
+window.onload = function() {
+  if (typeof rawDataString !== 'undefined') {
+    parsedData = rawDataString.split("\n").filter(line => line.trim() !== "").map(line => line.split("|").join(",").split(","));
+    createNav();
+    renderTable();
+  } else {
+    console.error("Файл data.js не найден");
+  }
+};
+</script>
+<script src="data.js"></script>
+</body>
+</html>awDataString = "1|Алексеев Алексей Викторович|Главный инженер|159|159|В,8,7,В,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,В,В,В,В,4,4,В,В,4,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8\n" + 
 "2|Палкин Андрей Сергеевич|Зам.гл.инженер|159|159|В,8,7,В,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,В,В,4,4,В,В,В,4,В,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8\n" +
 "3|Лепп Владислав Петрович|Инженер по эксплуатации|159|159|В,8,7,В,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,4,4,В,В,В,В,4,В,В,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8\n" +
 "4|Шумовский Николай Александрович|Производитель работ|159|159|В,8,7,В,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,В,В,В,В,В,В,В,В,В,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8,В,В,8,8,8,8,8\n" +
