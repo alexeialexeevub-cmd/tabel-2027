@@ -4,10 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Табель ИТС 2027</title>
-.table-left { flex-shrink: 0; background: #fff; border-right: 2px solid var(--primary); z-index: 2; width: 520px; }
+<style>
+  :root { --primary: #2980b9; --bg: #f4f6f8; --border: #dcdde1; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2f3640; }
+  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 5px; }
+  .subtitle { text-align: center; color: #718093; margin-bottom: 20px; font-size: 0.95rem; }
+  
+  .months-nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; max-width: 1200px; margin: 0 auto 20px; }
+  .month-btn { background: #fff; border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #718093; transition: all 0.2s; font-size: 0.9rem; }
   .month-btn:hover { background: #e1e8ed; }
   .month-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); }
 
+  /* Общий контейнер для двух таблиц */
   .table-wrapper { 
     display: flex; 
     align-items: flex-start; 
@@ -18,14 +26,16 @@
     overflow: hidden; 
   }
 
+  /* Левая таблица (фиксированная) */
   .table-left { 
     flex-shrink: 0; 
     background: #fff; 
     border-right: 2px solid var(--primary); 
     z-index: 2;
-    width: 520px; /* Фиксированная ширина для левой части */
+    width: 640px; /* Общая ширина левой части */
   }
   
+  /* Правая таблица (скроллируемая) */
   .table-right { 
     overflow-x: auto; 
     flex-grow: 1; 
@@ -47,15 +57,15 @@
   
   th { background: #eaf0f6; font-weight: 600; color: #2f3640; }
   
-  /* Левая таблица */
+  /* Точная ширина колонок в левой таблице */
   .table-left th:nth-child(1), .table-left td:nth-child(1) { width: 40px; text-align: center; }
-  .table-left th:nth-child(2), .table-left td:nth-child(2) { width: 200px; text-align: left; }
-  .table-left th:nth-child(3), .table-left td:nth-child(3) { width: 160px; text-align: left; }
-  .table-left th:nth-child(4), .table-left td:nth-child(4) { width: 60px; }
-  .table-left th:nth-child(5), .table-left td:nth-child(5) { width: 60px; }
+  .table-left th:nth-child(2), .table-left td:nth-child(2) { width: 230px; text-align: left; }
+  .table-left th:nth-child(3), .table-left td:nth-child(3) { width: 230px; text-align: left; }
+  .table-left th:nth-child(4), .table-left td:nth-child(4) { width: 70px; }
+  .table-left th:nth-child(5), .table-left td:nth-child(5) { width: 70px; }
 
-  /* Правая таблица */
-  .table-right th, .table-right td { width: 45px; }
+  /* Ширина колонок с днями */
+  .table-right th, .table-right td { width: 45px; min-width: 45px; }
 
   tr:hover td { background: #f1f8ff; }
   
@@ -113,18 +123,21 @@ function renderTable() {
   headLeft.innerHTML = ""; bodyLeft.innerHTML = "";
   headRight.innerHTML = ""; bodyRight.innerHTML = "";
 
+  // Левая шапка
   let trHeadLeft = document.createElement("tr");
   ["№", "ФИО", "Должность", "Часы план", "Часы факт"].forEach(text => {
     let th = document.createElement("th"); th.textContent = text; trHeadLeft.appendChild(th);
   });
   headLeft.appendChild(trHeadLeft);
 
+  // Правая шапка
   let trHeadRight = document.createElement("tr");
   for (let i = 1; i <= month.days; i++) {
     let th = document.createElement("th"); th.textContent = i; trHeadRight.appendChild(th);
   }
   headRight.appendChild(trHeadRight);
 
+  // Заполнение данными
   parsedData.forEach(row => {
     // Левая часть
     let trLeft = document.createElement("tr");
@@ -137,10 +150,9 @@ function renderTable() {
 
     // Правая часть
     let trRight = document.createElement("tr");
-    let daysString = row[5] || ""; // Берем строку с днями
-    let daysArray = daysString.split(","); // Разделяем по запятой
+    let daysString = row[5] || ""; 
+    let daysArray = daysString.split(","); 
 
-    // Выбираем нужный месяц
     let startIndex = month.start;
     for (let i = 0; i < month.days; i++) {
       let td = document.createElement("td");
@@ -177,7 +189,6 @@ function createNav() {
 
 window.onload = function() {
   if (typeof rawDataString !== 'undefined') {
-    // Делим по переносам строки и по символу "|"
     parsedData = rawDataString.split("\n").filter(line => line.trim() !== "").map(line => line.split("|"));
     createNav();
     renderTable();
