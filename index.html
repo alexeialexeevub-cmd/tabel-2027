@@ -14,16 +14,24 @@
   .month-btn:hover { background: #e1e8ed; }
   .month-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); }
   .table-container { max-width: 100%; overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+  
   table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
   th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 0.9rem; white-space: nowrap; }
+  
+  /* Закрепляем ТОЛЬКО шапку */
   th { background: #f8f9fa; font-weight: 600; color: #2f3640; position: sticky; top: 0; z-index: 10; }
   
-    th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; width: 40px; min-width: 40px; max-width: 40px; }
-  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; width: 190px; min-width: 190px; max-width: 190px; }
-  th:nth-child(3), td:nth-child(3) { position: sticky; left: 230px; z-index: 11; background: #fff; text-align: left; width: 160px; min-width: 160px; max-width: 160px; }
-  th:nth-child(4), td:nth-child(4) { position: sticky; left: 390px; z-index: 11; background: #fff; width: 80px; min-width: 80px; max-width: 80px; }
-  th:nth-child(5), td:nth-child(5) { position: sticky; left: 470px; z-index: 11; background: #fff; width: 80px; min-width: 80px; max-width: 80px; border-right: 2px solid var(--primary); }
+  /* Идеальное закрепление первых 5 колонок */
+  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; width: 40px; min-width: 40px; max-width: 40px; }
+  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; width: 180px; min-width: 180px; max-width: 180px; }
+  th:nth-child(3), td:nth-child(3) { position: sticky; left: 220px; z-index: 11; background: #fff; text-align: left; width: 150px; min-width: 150px; max-width: 150px; }
+  th:nth-child(4), td:nth-child(4) { position: sticky; left: 370px; z-index: 11; background: #fff; width: 70px; min-width: 70px; max-width: 70px; }
+  th:nth-child(5), td:nth-child(5) { position: sticky; left: 440px; z-index: 11; background: #fff; width: 70px; min-width: 70px; max-width: 70px; border-right: 2px solid var(--primary); }
+  
+  /* Красим шапку первых колонок */
   th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) { z-index: 12; background: #eaf0f6; }
+  
+  /* Подсветка строк */
   tr:hover td { background: #f1f8ff; }
   tr:hover td:nth-child(-n+5) { background: #e1f0fa; }
   
@@ -112,7 +120,7 @@ function createNav() {
 
 window.onload = function() {
   if (typeof rawDataString !== 'undefined') {
-    parsedData = rawDataString.split("\n").filter(line => line.trim() !== "").map(line => line.split("|").join(",").split(","));
+    parsedData = rawDataString.split("\n").filter(line => line.trim() !== "").map(line => line.split("|"));
     createNav();
     renderTable();
   }
