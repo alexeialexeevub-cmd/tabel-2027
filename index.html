@@ -15,26 +15,27 @@
   .month-btn:hover { background: #e1e8ed; }
   .month-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); }
 
-  /* Общий контейнер для двух таблиц */
+  /* Единый контейнер */
   .table-wrapper { 
     display: flex; 
     align-items: flex-start; 
     background: #fff; 
     border-radius: 8px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-    max-width: 100%;
-    overflow: hidden; /* Скрываем лишнее */
+    width: 100%;
+    overflow: hidden; 
   }
 
-  /* Левая таблица (не скроллится) */
+  /* Левая часть */
   .table-left { 
     flex-shrink: 0; 
     background: #fff; 
     border-right: 2px solid var(--primary); 
     z-index: 2;
+    width: 520px; /* Жестко фиксируем ширину! */
   }
   
-  /* Правая таблица (скроллится) */
+  /* Правая часть */
   .table-right { 
     overflow-x: auto; 
     flex-grow: 1; 
@@ -54,16 +55,17 @@
   
   th { background: #eaf0f6; font-weight: 600; color: #2f3640; }
   
-  /* Ширина колонок для левой таблицы */
+  /* Левая таблица ширины */
   .table-left th:nth-child(1), .table-left td:nth-child(1) { width: 40px; min-width: 40px; }
   .table-left th:nth-child(2), .table-left td:nth-child(2) { width: 200px; min-width: 200px; text-align: left; }
   .table-left th:nth-child(3), .table-left td:nth-child(3) { width: 160px; min-width: 160px; text-align: left; }
-  .table-left th:nth-child(4), .table-left td:nth-child(4) { width: 80px; min-width: 80px; }
-  .table-left th:nth-child(5), .table-left td:nth-child(5) { width: 80px; min-width: 80px; }
+  .table-left th:nth-child(4), .table-left td:nth-child(4) { width: 60px; min-width: 60px; }
+  .table-left th:nth-child(5), .table-left td:nth-child(5) { width: 60px; min-width: 60px; }
 
-  /* Ширина колонок для правой таблицы */
+  /* Правая таблица ширины */
   .table-right th, .table-right td { width: 45px; min-width: 45px; }
 
+  /* Подсветка */
   tr:hover td { background: #f1f8ff; }
   
   .val-V { color: #c0392b; font-weight: bold; background: #fadbd8; }
@@ -120,23 +122,19 @@ function renderTable() {
   headLeft.innerHTML = ""; bodyLeft.innerHTML = "";
   headRight.innerHTML = ""; bodyRight.innerHTML = "";
 
-  // ШАПКА ЛЕВОЙ ТАБЛИЦЫ
   let trHeadLeft = document.createElement("tr");
   ["№", "ФИО", "Должность", "Часы план", "Часы факт"].forEach(text => {
     let th = document.createElement("th"); th.textContent = text; trHeadLeft.appendChild(th);
   });
   headLeft.appendChild(trHeadLeft);
 
-  // ШАПКА ПРАВОЙ ТАБЛИЦЫ
   let trHeadRight = document.createElement("tr");
   for (let i = 1; i <= month.days; i++) {
     let th = document.createElement("th"); th.textContent = i; trHeadRight.appendChild(th);
   }
   headRight.appendChild(trHeadRight);
 
-  // ДАННЫЕ
   parsedData.forEach(row => {
-    // Левая часть
     let trLeft = document.createElement("tr");
     for (let i = 0; i < 5; i++) {
       let td = document.createElement("td"); 
@@ -145,7 +143,6 @@ function renderTable() {
     }
     bodyLeft.appendChild(trLeft);
 
-    // Правая часть
     let trRight = document.createElement("tr");
     for (let i = 0; i < month.days; i++) {
       let td = document.createElement("td");
