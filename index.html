@@ -9,28 +9,37 @@
   body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2f3640; }
   h1 { text-align: center; font-size: 1.8rem; margin-bottom: 5px; }
   .subtitle { text-align: center; color: #718093; margin-bottom: 20px; font-size: 0.95rem; }
+  
   .months-nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; max-width: 1200px; margin: 0 auto 20px; }
   .month-btn { background: #fff; border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; color: #718093; transition: all 0.2s; font-size: 0.9rem; }
   .month-btn:hover { background: #e1e8ed; }
   .month-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 5px rgba(41, 128, 185, 0.4); }
-  .table-container { max-width: 100%; overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
   
-  table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; table-layout: fixed; }
-  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 0.9rem; white-space: nowrap; overflow: hidden; }
+  /* Контейнер для двух таблиц */
+  .table-wrapper { display: flex; align-items: flex-start; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 100%; position: relative; }
   
-  th { background: #f8f9fa; font-weight: 600; color: #2f3640; position: sticky; top: 0; z-index: 10; }
+  /* Левая таблица (фиксированная) */
+  .table-fixed { flex-shrink: 0; background: #fff; border-right: 2px solid var(--primary); z-index: 2; }
   
-  /* Фиксация колонок с жесткой шириной */
-  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; width: 45px; min-width: 45px; max-width: 45px; }
-  th:nth-child(2), td:nth-child(2) { position: sticky; left: 45px; z-index: 11; background: #fff; text-align: left; width: 200px; min-width: 200px; max-width: 200px; }
-  th:nth-child(3), td:nth-child(3) { position: sticky; left: 245px; z-index: 11; background: #fff; text-align: left; width: 160px; min-width: 160px; max-width: 160px; }
-  th:nth-child(4), td:nth-child(4) { position: sticky; left: 405px; z-index: 11; background: #fff; width: 70px; min-width: 70px; max-width: 70px; }
-  th:nth-child(5), td:nth-child(5) { position: sticky; left: 475px; z-index: 11; background: #fff; width: 70px; min-width: 70px; max-width: 70px; border-right: 2px solid var(--primary); }
+  /* Правая таблица (скроллируемая) */
+  .table-scroll { overflow-x: auto; flex-grow: 1; }
   
-  th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) { z-index: 12; background: #eaf0f6; }
+  table { border-collapse: separate; border-spacing: 0; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 0.9rem; white-space: nowrap; height: 24px; }
+  
+  th { background: #eaf0f6; font-weight: 600; color: #2f3640; position: sticky; top: 0; z-index: 10; }
+  
+  /* Задаем фиксированную ширину для левых колонок */
+  .table-fixed th:nth-child(1), .table-fixed td:nth-child(1) { width: 40px; min-width: 40px; }
+  .table-fixed th:nth-child(2), .table-fixed td:nth-child(2) { width: 200px; min-width: 200px; text-align: left; }
+  .table-fixed th:nth-child(3), .table-fixed td:nth-child(3) { width: 160px; min-width: 160px; text-align: left; }
+  .table-fixed th:nth-child(4), .table-fixed td:nth-child(4) { width: 80px; min-width: 80px; }
+  .table-fixed th:nth-child(5), .table-fixed td:nth-child(5) { width: 80px; min-width: 80px; }
+  
+  /* Фикс ширины для ячеек дней в правой таблице */
+  .table-scroll th, .table-scroll td { width: 40px; min-width: 40px; }
   
   tr:hover td { background: #f1f8ff; }
-  tr:hover td:nth-child(-n+5) { background: #e1f0fa; }
   
   .val-V { color: #c0392b; font-weight: bold; background: #fadbd8; }
   .val-OT { color: #8e44ad; font-weight: bold; background: #f4ecf7; }
@@ -43,12 +52,22 @@
   <h1>📋 Табель ИТС — 2027</h1>
   <div class="subtitle">ООО "Уральские Бани"</div>
   <div class="months-nav" id="monthsNav"></div>
-  <div class="table-container">
-    <table id="scheduleTable">
-      <thead><tr id="tableHead"></tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  
+  <div class="table-wrapper">
+    <div class="table-fixed">
+      <table id="tableFixed">
+        <thead><tr id="headFixed"></tr></thead>
+        <tbody id="bodyFixed"></tbody>
+      </table>
+    </div>
+    <div class="table-scroll" id="scrollContainer">
+      <table id="tableScroll">
+        <thead><tr id="headScroll"></tr></thead>
+        <tbody id="bodyScroll"></tbody>
+      </table>
+    </div>
   </div>
+  
   <div class="footer">Данные обновлены автоматически из Excel</div>
 
 <script>
@@ -67,24 +86,41 @@ let parsedData = [];
 
 function renderTable() {
   const month = monthsConfig[currentMonthIndex];
-  const thead = document.getElementById("tableHead");
-  const tbody = document.getElementById("tableBody");
-  thead.innerHTML = ""; tbody.innerHTML = "";
+  
+  const headFixed = document.getElementById("headFixed");
+  const bodyFixed = document.getElementById("bodyFixed");
+  const headScroll = document.getElementById("headScroll");
+  const bodyScroll = document.getElementById("bodyScroll");
+  
+  headFixed.innerHTML = ""; bodyFixed.innerHTML = "";
+  headScroll.innerHTML = ""; bodyScroll.innerHTML = "";
 
-  let trHead = document.createElement("tr");
+  // ЛЕВАЯ ЧАСТЬ
+  let trHeadFixed = document.createElement("tr");
   ["№", "ФИО", "Должность", "Часы план", "Часы факт"].forEach(text => {
-    let th = document.createElement("th"); th.textContent = text; trHead.appendChild(th);
+    let th = document.createElement("th"); th.textContent = text; trHeadFixed.appendChild(th);
   });
+  headFixed.appendChild(trHeadFixed);
+
+  // ПРАВАЯ ЧАСТЬ
+  let trHeadScroll = document.createElement("tr");
   for (let i = 1; i <= month.days; i++) {
-    let th = document.createElement("th"); th.textContent = i; trHead.appendChild(th);
+    let th = document.createElement("th"); th.textContent = i; trHeadScroll.appendChild(th);
   }
-  thead.appendChild(trHead);
+  headScroll.appendChild(trHeadScroll);
 
   parsedData.forEach(row => {
-    let tr = document.createElement("tr");
+    // Строка слева
+    let trFixed = document.createElement("tr");
     for (let i = 0; i < 5; i++) {
-      let td = document.createElement("td"); td.textContent = row[i]; tr.appendChild(td);
+      let td = document.createElement("td"); 
+      td.textContent = row[i] || ""; 
+      trFixed.appendChild(td);
     }
+    bodyFixed.appendChild(trFixed);
+
+    // Строка справа
+    let trScroll = document.createElement("tr");
     for (let i = 0; i < month.days; i++) {
       let td = document.createElement("td");
       let val = row[month.start + i] || "";
@@ -93,9 +129,9 @@ function renderTable() {
       else if (val === "б/л") { td.className = "val-BL"; td.textContent = "б/л"; }
       else if (val === "") { td.className = "val-empty"; td.textContent = "—"; }
       else { td.textContent = val; }
-      tr.appendChild(td);
+      trScroll.appendChild(td);
     }
-    tbody.appendChild(tr);
+    bodyScroll.appendChild(trScroll);
   });
 }
 
@@ -110,6 +146,8 @@ function createNav() {
       document.querySelectorAll(".month-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderTable();
+      // Сбрасываем скролл вправо при смене месяца
+      document.getElementById("scrollContainer").scrollLeft = 0;
     };
     nav.appendChild(btn);
   });
