@@ -18,20 +18,17 @@
   table { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; }
   th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 0.9rem; white-space: nowrap; }
   
-  /* Закрепляем ТОЛЬКО шапку */
   th { background: #f8f9fa; font-weight: 600; color: #2f3640; position: sticky; top: 0; z-index: 10; }
   
-  /* Идеальное закрепление первых 5 колонок */
-  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; width: 40px; min-width: 40px; max-width: 40px; }
-  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; width: 180px; min-width: 180px; max-width: 180px; }
-  th:nth-child(3), td:nth-child(3) { position: sticky; left: 220px; z-index: 11; background: #fff; text-align: left; width: 150px; min-width: 150px; max-width: 150px; }
-  th:nth-child(4), td:nth-child(4) { position: sticky; left: 370px; z-index: 11; background: #fff; width: 70px; min-width: 70px; max-width: 70px; }
-  th:nth-child(5), td:nth-child(5) { position: sticky; left: 440px; z-index: 11; background: #fff; width: 70px; min-width: 70px; max-width: 70px; border-right: 2px solid var(--primary); }
+  /* Жесткая фиксация первых 5 колонок */
+  th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 11; background: #fff; min-width: 40px; width: 40px; }
+  th:nth-child(2), td:nth-child(2) { position: sticky; left: 40px; z-index: 11; background: #fff; text-align: left; min-width: 180px; width: 180px; }
+  th:nth-child(3), td:nth-child(3) { position: sticky; left: 220px; z-index: 11; background: #fff; text-align: left; min-width: 150px; width: 150px; }
+  th:nth-child(4), td:nth-child(4) { position: sticky; left: 370px; z-index: 11; background: #fff; min-width: 70px; width: 70px; }
+  th:nth-child(5), td:nth-child(5) { position: sticky; left: 440px; z-index: 11; background: #fff; min-width: 70px; width: 70px; border-right: 2px solid var(--primary); }
   
-  /* Красим шапку первых колонок */
   th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) { z-index: 12; background: #eaf0f6; }
   
-  /* Подсветка строк */
   tr:hover td { background: #f1f8ff; }
   tr:hover td:nth-child(-n+5) { background: #e1f0fa; }
   
@@ -75,8 +72,11 @@ function renderTable() {
   thead.innerHTML = ""; tbody.innerHTML = "";
 
   let trHead = document.createElement("tr");
+  // Добавляем &nbsp; чтобы ячейки не схлопывались
   ["№", "ФИО", "Должность", "Часы план", "Часы факт"].forEach(text => {
-    let th = document.createElement("th"); th.textContent = text; trHead.appendChild(th);
+    let th = document.createElement("th"); 
+    th.innerHTML = text + "&nbsp;"; 
+    trHead.appendChild(th);
   });
   for (let i = 1; i <= month.days; i++) {
     let th = document.createElement("th"); th.textContent = i; trHead.appendChild(th);
@@ -86,7 +86,9 @@ function renderTable() {
   parsedData.forEach(row => {
     let tr = document.createElement("tr");
     for (let i = 0; i < 5; i++) {
-      let td = document.createElement("td"); td.textContent = row[i]; tr.appendChild(td);
+      let td = document.createElement("td"); 
+      td.innerHTML = (row[i] || "") + "&nbsp;"; // Добавляем пробел в конец
+      tr.appendChild(td);
     }
     for (let i = 0; i < month.days; i++) {
       let td = document.createElement("td");
